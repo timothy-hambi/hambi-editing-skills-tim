@@ -1,0 +1,443 @@
+{
+ "_note": "Maps the client name on Editor Tickets (match = case-insensitive substring of the ticket's client) to Foreplay lenses. name_filter goes into get_lens_insights filters.ad_name_ct. status: ok | no_lens | no_access | client_naming | churned. Update this file when a client is onboarded, churns or a lens changes.",
+ "clients": [
+  {
+   "key": "Biomel",
+   "label": "Biomel",
+   "lenses": [
+    {
+     "id": "lRss44LvEy2I2hkD7vVHKXsZ4d",
+     "name_filter": "HP"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "Prep Kitchen",
+   "label": "Prep Kitchen",
+   "lenses": [
+    {
+     "id": "hqBTG6wMpD2oBraroFUbl3asB4",
+     "name_filter": "HP NET NEW"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "Zapply",
+   "label": "Zapply",
+   "lenses": [
+    {
+     "id": "1VFGg_qLER8GksYzDRMTNNgouz",
+     "name_filter": "HPNETNEW"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "Nutrition Geeks",
+   "label": "Nutrition Geeks",
+   "lenses": [],
+   "status": "no_lens",
+   "note": "No Foreplay lens yet."
+  },
+  {
+   "key": "NB1",
+   "label": "NB1",
+   "lenses": [
+    {
+     "id": "hZFMyMuvvZ0g5Hc1Y7Q0P334B3",
+     "name_filter": "HP"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "Kukoon",
+   "label": "Kukoon",
+   "lenses": [
+    {
+     "id": "6lu9Jy9U2OtAMX4WlorpLssK2T",
+     "name_filter": "HM"
+    }
+   ],
+   "status": "ok",
+   "note": "Ads use batch numbers (B16, B17) and tickets carry no CM, so concept numbers repeat across batches. Expect low match rates until tickets carry the CM or batch."
+  },
+  {
+   "key": "Happy Tuesdays",
+   "label": "Happy Tuesdays",
+   "lenses": [
+    {
+     "id": "sj8NDFBBniR846bNi_DXMwdXyZ",
+     "name_filter": "HP"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "Tonic",
+   "label": "Tonic",
+   "lenses": [
+    {
+     "id": "Jhbnl-DEt5Jo1QNxgtdvN3ZA3l",
+     "name_filter": "HP"
+    }
+   ],
+   "status": "client_naming",
+   "note": "Client names ads in its own format with no CM, concept # or HM tag."
+  },
+  {
+   "key": "Diamond Store",
+   "label": "The Diamond Store",
+   "lenses": [
+    {
+     "id": "IqBhmm3BIw4yecEyf3DqGZCBPS",
+     "name_filter": "HP"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "Tom",
+   "label": "Tom's Studio",
+   "lenses": [
+    {
+     "id": "a9uffB7CHvHdf0tB4rx_7GquQ-",
+     "name_filter": "HighProduction"
+    }
+   ],
+   "status": "client_naming",
+   "note": "Client naming (Agency+HighProduction) with no CM or concept #."
+  },
+  {
+   "key": "Noted Aromas",
+   "label": "Noted Aromas",
+   "lenses": [
+    {
+     "id": "pADn6k9ChEWG_1QOYk-KIcVm0S",
+     "name_filter": "src:Hambi"
+    }
+   ],
+   "status": "client_naming",
+   "note": "Key-value naming carries cm:CMx and cc:<concept name> but no concept #."
+  },
+  {
+   "key": "Everyday Dose",
+   "label": "Everyday Dose",
+   "lenses": [
+    {
+     "id": "Tgr5QNAUSQEXP23cQlSZGMPrwv",
+     "name_filter": "HP"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "Omni",
+   "label": "Omni",
+   "lenses": [
+    {
+     "id": "WpGH7J_aM_b2zGYmzAQx_vBuvh",
+     "name_filter": "HP"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "smol",
+   "label": "smol",
+   "lenses": [
+    {
+     "id": "u2Y3hBgYapw5fhAvNhlJwB8HhN",
+     "name_filter": "HM::"
+    }
+   ],
+   "status": "client_naming",
+   "note": "smol uses :: naming with no CM or concept #."
+  },
+  {
+   "key": "Bulk",
+   "label": "Bulk",
+   "lenses": [
+    {
+     "id": "__6tU__WJVINUxyAdzveA3K_v2",
+     "name_filter": "HP"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "Cornish Seaweed",
+   "label": "Cornish Seaweed",
+   "lenses": [
+    {
+     "id": "rIvycDpXFeY66Q0UYVV0Ss08Xk",
+     "name_filter": "HP"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "PORE FAVOR",
+   "label": "Pore Favor",
+   "lenses": [
+    {
+     "id": "8x_0FPXyFHkGEP8VOla7jNT9xt",
+     "name_filter": "Hambi",
+     "region": "US"
+    },
+    {
+     "id": "muq32QXs9My_1-88EjOrZBxu78",
+     "name_filter": "Hambi",
+     "region": "AU"
+    },
+    {
+     "id": "BFiochFwMHZGYksEmZ8RQwTqvJ",
+     "name_filter": "Hambi",
+     "region": "UK"
+    }
+   ],
+   "status": "ok",
+   "note": "Three ad accounts in different currencies. Keep them as separate rows; never add their spend together."
+  },
+  {
+   "key": "Mindful Chef",
+   "label": "Mindful Chef",
+   "lenses": [
+    {
+     "id": "QSXxjA-2ameUPv55e2L7NBe7Ur",
+     "name_filter": "HM"
+    }
+   ],
+   "status": "ok",
+   "note": "ROAS often reports 0 in this account; read spend only."
+  },
+  {
+   "key": "Hunter & Gather",
+   "label": "Hunter & Gather",
+   "lenses": [
+    {
+     "id": "2-hE12HUBdEMrcY-Z1WG12MOOX",
+     "name_filter": "HP NET NEW"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "Pure Pet Food",
+   "label": "Pure Pet Food",
+   "lenses": [
+    {
+     "id": "fTsZ321i9Rn8tGJI0ZPx0SL0Hb",
+     "name_filter": "HP"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "Rheal",
+   "label": "Rheal",
+   "lenses": [
+    {
+     "id": "myWFdKFcUCXl_eyklbc789lszA",
+     "name_filter": "HP"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "Bella+Duke",
+   "label": "Bella+Duke",
+   "lenses": [
+    {
+     "id": "frYy4_ps8VBFET30PYGE016MGo",
+     "name_filter": "HP"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "Zima Dental",
+   "label": "Zima Dental",
+   "lenses": [
+    {
+     "id": "DvkkLHxYvEZ2vQg8Orqzy8SJlk",
+     "name_filter": "HP"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "Superpower",
+   "label": "Superpower",
+   "lenses": [
+    {
+     "id": "4ELZjRH8F2lV5uo_fHxJizr_-T",
+     "name_filter": "HP"
+    }
+   ],
+   "status": "client_naming",
+   "note": "Client naming with no Hambi markers."
+  },
+  {
+   "key": "Sons",
+   "label": "Sons",
+   "lenses": [
+    {
+     "id": "6pwMjZ3LhuyTHgCPOQt0W08QH5",
+     "name_filter": "HM"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "Free Soul",
+   "label": "Free Soul",
+   "lenses": [
+    {
+     "id": "9YI2UMbuYiLxn1Fzu3ePyFLYFG",
+     "name_filter": "HP"
+    }
+   ],
+   "status": "no_access",
+   "note": "Foreplay lens has lost Meta access. Ask CS to reconnect."
+  },
+  {
+   "key": "Alyve",
+   "label": "Alyve",
+   "lenses": [
+    {
+     "id": "65yVu26oEeD-pfC4QyH-nrvZab",
+     "name_filter": "HP"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "NAYDAYA",
+   "label": "Naydaya",
+   "lenses": [
+    {
+     "id": "ZIsHZasf53nNaIY0Kp4ocids_b",
+     "name_filter": "HP"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "Revive",
+   "label": "Revive",
+   "lenses": [
+    {
+     "id": "mKmqsf8HxbFqT-ug4OlO0I24Dy",
+     "name_filter": "HP"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "Dip",
+   "label": "Dip",
+   "lenses": [],
+   "status": "churned"
+  },
+  {
+   "key": "DITTO",
+   "label": "DITTO",
+   "lenses": [],
+   "status": "churned"
+  },
+  {
+   "key": "Nuovva",
+   "label": "Nuovva",
+   "lenses": [],
+   "status": "churned"
+  },
+  {
+   "key": "Holy Gels",
+   "label": "Holy Gels",
+   "lenses": [
+    {
+     "id": "aXEpPYeOw2YxZl7w32Z1KSHWGm",
+     "name_filter": "HP"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "Pets Are Kids",
+   "label": "Pets Are Kids",
+   "lenses": [
+    {
+     "id": "XadCxqAXdtXOXcgpbWgzKjOTyk",
+     "name_filter": "HP"
+    }
+   ],
+   "status": "ok"
+  },
+  {
+   "key": "AKT",
+   "label": "AKT",
+   "lenses": [],
+   "status": "no_lens",
+   "note": "Only a TikTok lens exists in Foreplay, and its access is denied. No Meta lens."
+  },
+  {
+   "key": "IM8Health",
+   "label": "IM8Health",
+   "lenses": [],
+   "status": "no_lens",
+   "note": "No Foreplay lens yet."
+  },
+  {
+   "key": "Spacegoods",
+   "label": "Spacegoods",
+   "lenses": [],
+   "status": "no_lens",
+   "note": "No Foreplay lens yet."
+  },
+  {
+   "key": "Ancient + Brave",
+   "label": "Ancient + Brave",
+   "lenses": [],
+   "status": "no_lens",
+   "note": "No Foreplay lens yet."
+  },
+  {
+   "key": "Matcha Fuel",
+   "label": "Matcha Fuel",
+   "lenses": [],
+   "status": "no_lens",
+   "note": "No Foreplay lens yet."
+  },
+  {
+   "key": "Heights",
+   "label": "Heights",
+   "lenses": [],
+   "status": "no_lens",
+   "note": "No Foreplay lens yet."
+  },
+  {
+   "key": "NothingFishy",
+   "label": "NothingFishy",
+   "lenses": [],
+   "status": "no_lens",
+   "note": "No Foreplay lens yet."
+  },
+  {
+   "key": "Cowshed",
+   "label": "Cowshed",
+   "lenses": [],
+   "status": "no_lens",
+   "note": "No Foreplay lens yet."
+  },
+  {
+   "key": "47 Skin",
+   "label": "47 Skin",
+   "lenses": [],
+   "status": "no_lens",
+   "note": "No Foreplay lens yet."
+  }
+ ]
+}
