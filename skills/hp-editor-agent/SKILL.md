@@ -17,11 +17,15 @@ It does the same job as `/premiere-script-prompt` script mode, plus the build, b
 
 ## Reference files
 
-Load these on every run. A later file overrides an earlier one.
+Load these on every run. A later file overrides an earlier one, so a client's rules beat the Style Library and the ticket beats everything.
 
 1. **House standards:** `standards/editing-standards.md` (synced into the Project; local clone `D:\Hambi\03. Claude\hambi-editing-skills-tim\hambi-editing-skills-tim\standards\editing-standards.md`). This includes its Client overrides appendix.
-2. **Client rules:** `brand-hubs/<client>.md` in the repo (lowercase, hyphenated; local clone `D:\Hambi\03. Claude\hambi-editing-skills-tim\hambi-editing-skills-tim\brand-hubs\`), if the file exists. Tim adds these over time, so check the folder every run. If there's no file, use the client's Notion Brand Hub: the ticket's link first, otherwise search Notion for "<Client> Brand Hub". Never use an archived duplicate. If you find none or more than one, ask. Flag a hub marked WIP, OFFBOARDING or RE-ALIGNMENT. Read every image in it: settings screenshots give exact values, and an unticked checkbox means that setting is off.
-3. **Style Library:** `D:\Hambi\03. Claude\Style Library\<Category>\`. Tim keeps adding categories and example edits (current categories: UGC Talking Head, UGC Non-talking head, Street Interview, Podcast). See step 2.
+2. **Style Library:** `D:\Hambi\03. Claude\Style Library\<Category>\`. Tim keeps adding categories and example edits (current categories: UGC Talking Head, UGC Non-talking head, Street Interview, Podcast). See step 2.
+3. **Client rules:** read both of these on every run.
+   - **Client guide:** `brand-hubs/<client>.md` in the repo (lowercase, hyphenated; local clone `D:\Hambi\03. Claude\hambi-editing-skills-tim\hambi-editing-skills-tim\brand-hubs\`), if it exists. Tim adds these over time, so check the folder every run.
+   - **Brand Hub:** the client's Notion Brand Hub, from the ticket's link first, otherwise by searching Notion for "<Client> Brand Hub". Never use an archived duplicate. Flag a hub marked WIP, OFFBOARDING or RE-ALIGNMENT. Read every image in it: settings screenshots give exact values, and an unticked checkbox means that setting is off.
+   - **If the two disagree,** follow the client guide and list the conflict under open questions in the cut sheet, so Tim can bring them back in line. The Brand Hub fills in everything the file doesn't cover, such as the current CTA, end card and pack shots.
+   - **If a source is missing:** with a client guide but no Brand Hub, carry on with the guide and say so. With more than one Brand Hub, ask which to use. With neither a file nor a hub, ask.
 4. **The ticket:** what the ticket says wins. Flag any conflict with a client rule.
 
 If `D:\Hambi\...` isn't reachable because the computer isn't linked, say so in one line. Then use the Project copy of the standards and carry on without the Style Library.
@@ -40,6 +44,20 @@ Look at your own tool list before doing anything else, including the preflight.
   > This skill needs Cowork, because that's where I can save the cuts into Edit Review on your computer. Please open a Cowork session in the Claude desktop app, give it access to `D:\Hambi`, and send the same message there. I haven't started anything in this chat, so there's nothing to carry over.
 
 If the editor replies in the same chat, give the same answer. A connector that can read `D:\Hambi` doesn't count, because it can't save video files there. The fallbacks further down (computer not linked, Edit Review not reachable) only apply once this check has passed.
+
+### Resume check (before the preflight)
+
+A job's edit decisions are saved on the user's computer after every version (step 7), so a job can be picked up in a new session.
+
+1. Work out the job code from the message (`HP-editor-agent: notes done for <CODE> v<N>`, `APPROVED <CODE> v<N>`) or from the ticket's naming (step 1).
+2. Run `device_list_dir` on `D:\Hambi\03. Claude\Edit Review\jobs\<Seq base>\`.
+3. **If the folder has a `work\spec.json`:** this is a job in progress. Don't start again from step 1.
+   - Stage `job.json`, `work\spec.json`, `work\asr.json`, `notes.json` and `status.json`.
+   - Say in one line which version you're resuming from.
+   - Rebuild proxies only for the sources the sequences being re-rendered use, from the source links recorded in `spec.json`. Don't transcribe again; `asr.json` already has the word timings.
+   - Carry on at step 8 (feedback) or step 9 (approval).
+4. **If the folder doesn't exist or has no `work\spec.json`:** it's a new job. Carry on to the preflight.
+5. If the user wants a fresh start on an existing job, they have to say so. Never overwrite a saved `spec.json` with a new v1 without asking.
 
 ### 0. Preflight
 
@@ -80,7 +98,10 @@ Before starting the rough cut, ask the user, whether that's Tim or another edito
    - If they'd rather not mark breaks, they can reply "default", and the house rule from `/premiere-script-prompt` applies: up to 4 words if all words are short, up to 2 if any word is 6+ letters.
 3. **Run steps 2–3 while waiting.** Style loading, downloads, proxies and transcription don't depend on the breaks. Don't render until the marked script, or "default", is back.
 4. **Apply the markers:**
-   - Each "/"-separated chunk becomes **one cue on one line**, worded exactly as marked: their spelling, capitals, £ symbols and punctuation, except that trailing commas and full stops are dropped and ? and ! are kept, per house style.
+   - Each "/"-separated chunk becomes **one cue on one line**, worded exactly as marked: their spelling, capitals, £ symbols and punctuation. Follow sentence grammar (standards C8): keep full stops, commas, ? and ! at the end of a cue, and start the cue that opens a new sentence with a capital.
+   - Where the punctuation comes from:
+     - **Line said word for word from the script:** the script's punctuation and capitals.
+     - **Line changed on the shoot** (words added, dropped or reworded): the cue text follows what was actually said, with standard English grammar. List these lines in the cut sheet under *What she/he says vs the ticket*.
    - A row end always ends a cue, even with no "/".
    - Line breaks inside a cue are only allowed where they asked for them (e.g. "two lines here" or a `//` inside a chunk). Otherwise never wrap.
 5. **Time each cue from the transcript.** Align each chunk's words to the kept words, using fuzzy matching that tolerates mishearings and small ad-libs. A cue starts at its first word's time (snapped down to a frame). It holds until the next cue if the gap is under 0.5 s, otherwise it ends at its last word's end + 0.1 s. Minimum length is 6 frames, with no overlaps.
@@ -116,9 +137,21 @@ Before starting the rough cut, ask the user, whether that's Tim or another edito
 - **Drive:** download the main footage the same way as Drive B-roll (step 3b, point 6). A creator's personal folder lists as empty through the connector, so ask for a local download and stage it.
 - **Before any download batch,** add up the file sizes and check them against `df -h`, allowing about 1.5× for proxies and WAVs. If the batch won't fit, stop and say so before downloading anything.
 - **Probe each clip:** resolution, fps, rotation, colour transfer (`arib-std-b67` = HLG HDR) and audio level (`volumedetect`).
-- **Proxies:** `scale=1080:1920,fps=<src>`, x264 `veryfast` at crf 16, plus a mono 16 kHz WAV per clip.
+- **Proxies:** 1080×1920 at the source frame rate, x264 `veryfast` at crf 16, plus a mono 16 kHz WAV per clip. Never stretch a clip to fit:
+  - **Check which way up every clip is first** (see the orientation check below), and fit the clip only after it's upright. A portrait clip that was saved on its side is rotated, not cropped.
+  - **Already 9:16:** `scale=1080:1920,fps=<src>`.
+  - **Any other shape** (landscape, square, 4:5): fill the frame and centre-crop with `scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,fps=<src>`.
+  - Look at a frame from every cropped clip. If the crop cuts off the subject or the product, shift the crop (`crop=1080:1920:x:y`) or ask the editor how they want it framed.
+  - Record each cropped clip's original size and crop offset in `spec.json`, and list them in the cut sheet under ⚠️ so the framing gets checked.
   - On 4K iPhone footage this is slow, so **run it in the background** (`nohup bash script &`) and poll. A foreground call times out at about 10 minutes.
   - Write each proxy to `*.tmp.mp4` and rename it when done.
+- **Orientation check** (every clip, before its proxy is made): FFmpeg already applies a clip's rotation flag, so this is for clips where the flag is missing or wrong and the picture comes out sideways or upside down.
+  1. Pull one frame from the middle of each clip, as FFmpeg displays it.
+  2. **Use faces as the reference.** Run a face detector (OpenCV, `pip install opencv-python-headless --break-system-packages`) on the frame at 0°, 90°, 180° and 270°. The rotation where a face is found the right way up is the upright one. If the first frame has no face, try two more frames from the clip.
+  3. **No face in the clip** (product, packing or hands-only shots): look at the frame yourself and judge from on-pack text, the horizon, and which way things rest or pour.
+  4. **Still not sure, or the detector finds faces at two rotations:** leave the clip as it is and ask the editor. Never guess a rotation.
+  5. Rotate with `transpose=1` (90° clockwise), `transpose=2` (90° anticlockwise) or `hflip,vflip` (180°), placed before the scale in the proxy filter.
+  6. Record the rotation for each clip in `spec.json`, and list every rotated clip in the cut sheet under ⚠️ with a before and after frame, so the editor can confirm it.
 - **Transcription:** faster-whisper `small.en`, int8, `word_timestamps=True`.
   - Load each WAV with the `wave` module into a numpy float32 array and pass the array in. Passing the file path triggers an `av` version TypeError.
   - Run it in the background and save `asr.json` incrementally.
@@ -170,22 +203,41 @@ Copy its **Timecode helper** into the scratchpad. Use its **Subtitle helper** fo
 - **B-roll and graphics, pass 1:**
   - Place the approved Exact and Close picks from step 3b on the word that names them (P6), on V2 above the A-roll. The A-roll is never replaced.
   - Everything else is a **placeholder**: a labelled box burned into the rough cut (`[BROLL] P03 — description`) plus a row in the cut sheet.
+- **Hook text overlay** (standards H1): every hook gets a text overlay at the top that works with the sound off.
+  - Use the hook's on-screen text from the ticket, worded exactly as written.
+  - If the ticket gives none, burn in a placeholder card (`[HOOK TEXT] H2`) and suggest wording under open questions in the cut sheet. Never put unapproved copy into the cut as if it were final.
+- **CTA and end card** (standards E1 to E4): the Body ends on the client's current end card.
+  - Find it in this order: the ticket, the client guide, the Brand Hub. Pick the version for the product and offer this ticket is about.
+  - Download it and place it after the final line, as its own segment. Captions stop before it unless the client rules say otherwise.
+  - Offer text, prices and roundels must match the ticket exactly. If the end card shows a different offer, flag it and don't use it.
+  - If there is no end card, or there are several and it isn't clear which is current, burn in a placeholder (`[END CARD] — <product / offer>`) and ask. Never build an end card from scratch.
+- **Music** (standards A1): this skill doesn't choose or license music by itself.
+  - Use a track only if the ticket names one or the editor supplies a file, and check it against the client rules (some brands want soft music, or no SFX).
+  - Otherwise render with dialogue only and add a **music brief for Artlist** to the cut sheet, so the editor can find a track quickly:
+    - the mood from the brief and the client rules (e.g. soft and calm, upbeat, no orchestral);
+    - 2 or 3 sets of Artlist search terms to try: genre, mood, instruments, and whether it should have vocals;
+    - a tempo range and energy level that fit the cut's pacing in the style profile;
+    - the length needed, and where the track should lift or drop (hook, product reveal, CTA);
+    - any approved concept of the client's whose track would suit, as a reference.
+  - Suggest search terms only. Never name a specific Artlist track or link, because Claude can't search or play the Artlist library and a guessed title may not exist.
+  - The editor downloads the track from Artlist, since the licence is theirs, and supplies the file. Add it in the next round at the level under speech set in step 6.
+  - Say in the chat summary whether the cut has music or is waiting for a track.
 - **Alternates:** strong off-script moments (a better ad-lib, a natural reaction) go in the cut sheet's Alternates list with source and in–out, never into the cut.
 
 ### 5. spec.json (single source of truth)
 
 All edit decisions live in `spec.json`, in the same format as `ugc-revision`:
 
-- **Sources:** proxy path, device path, frame count.
+- **Sources:** proxy path, device path, frame count, the source link (Frame.io or Drive) so the clip can be fetched again, any rotation applied, and for a cropped clip its original size and crop offset.
 - **Card and caption style:** from the client rules and the style profile.
-- **Cards.**
+- **Cards:** text cards, each hook's text overlay and the end card, each marked as final or placeholder.
 - **Sequences:** for the Body and each hook:
   - segments (`src`, `in`, `out`, and `speed` or `fill`; no freeze-frame holds, slow the clip instead);
   - overlays, including B-roll picks with their label (Exact or Close), source link and original's location;
   - placeholders;
   - subtitle cues (start, end, text, row);
   - notes.
-- **Audio:** dialogue, plus the music bed's file and level under speech.
+- **Audio:** dialogue, plus the music bed's file and level under speech, or a note that the cut is waiting for a track.
 
 The renderer, the SRT writer and the XML builder all read only `spec.json`.
 
@@ -226,7 +278,7 @@ Put these in `/mnt/user-data/outputs/<Seq base>/`:
 
 - `<Seq>_v<N>.mp4` for each hook (the Body only on request);
 - `<Seq>_Subtitles_v<N>.srt` for the Body and each hook. Hook SRTs hold only that hook's cues; the Body's cues live in the Body SRT, the same as `/premiere-script-prompt` step 5b;
-- `<Seq base>_CutSheet_v<N>.md`. It covers: the header (ticket, mode, category, style applied, script used); client notes; sources and transcript source; a table of # · Seq · Section · Line (heard) · Src · Source in–out · Timeline in–out; the B-roll table from step 3b with each beat's label and source; placeholders, with an AI prompt or stock search terms for each; corrections; subtitle mismatches; a subtitle preview; alternates; checks; and open questions.
+- `<Seq base>_CutSheet_v<N>.md`. It covers: the header (ticket, mode, category, style applied, script used); client notes; sources and transcript source; a table of # · Seq · Section · Line (heard) · Src · Source in–out · Timeline in–out; the B-roll table from step 3b with each beat's label and source; placeholders, with an AI prompt or stock search terms for each; the hook text, end card and music status (final, placeholder or waiting); corrections; subtitle mismatches; a subtitle preview; alternates; checks; and open questions.
 
 Then upload them to **Edit Review**, the local Frame.io-style review app. Don't post the MP4s in chat.
 
@@ -239,14 +291,22 @@ Then upload them to **Edit Review**, the local Frame.io-style review app. Don't 
    ```
    On later versions, stage the current `job.json` first (`device_stage_files`). Append each new version to every sequence's `versions`, bump `updated`, and write it back. Never overwrite the user's `notes.json` or `status.json`.
 2. **Upload.** `SendUserFile` each MP4 and SRT (`display: attach`) to get fileUuids. Then `device_commit_files` them into `jobs\<Seq base>\v<N>\`, and commit `job.json` (stagedPath works for files written with Write). Also commit the cut sheet into `v<N>\`. The Body MP4 goes up too, so reviewers can note it directly.
-3. **Message the app.** Append to `agent.json` `messages` (`{at, version, text}`), e.g. "v1 uploaded: 3 hooks + body, 0:48 avg". It shows on the job's status line.
-4. **Chat.** Write 3–5 lines: "v<N> is in Edit Review", the job code, runtime per hook, style applied, ⚠️ items and open questions. Ask the user to leave timestamped notes in Edit Review, then click **Notes done → revise** or **Approve v<N>**.
+3. **Save the working files.** After every version, commit these into `jobs\<Seq base>\work\` with `SendUserFile` → fileUuid → `device_commit_files`:
+   - `spec.json`, the current edit decisions;
+   - `spec_v<N>.json`, a copy kept for each version so a round can be rolled back;
+   - `asr.json`, the word-level transcripts, and the corrections table.
+
+   Without these, a feedback round in a new session would have to start from nothing. Proxies aren't saved, because they can be rebuilt from the source links in `spec.json`.
+4. **Message the app.** Append to `agent.json` `messages` (`{at, version, text}`), e.g. "v1 uploaded: 3 hooks + body, 0:48 avg". It shows on the job's status line.
+5. **Chat.** Write 3–5 lines: "v<N> is in Edit Review", the job code, runtime per hook, style applied, ⚠️ items and open questions. Ask the user to leave timestamped notes in Edit Review, then click **Notes done → revise** or **Approve v<N>**.
 
 **If Edit Review isn't reachable** (the computer isn't linked), fall back to `SendUserFile` with `display: render` in chat, and say so.
 
 ### 8. Feedback rounds
 
 **Trigger.** A round starts when the user pastes the message the app copies, `HP-editor-agent: notes done for <CODE> v<N> …`, or just says the notes are in.
+
+**Check the workspace first.** If `spec.json` isn't in the workspace (a new session, or the workspace was reset), follow the Resume check near the top before doing anything else.
 
 **Read the notes.** Stage `jobs\<CODE>\notes.json` and `status.json`.
 
@@ -291,10 +351,11 @@ First stage `status.json` and check that the approved version is the latest. If 
 - Declare each file in full once; reuse it after that as `<file id="…"/>`.
 - `pathurl` is `file://localhost/D%3a/<quoted path>`, pointing at the **original** footage on the user's machine, not the proxies. If the originals only exist in Frame.io, ask where they're kept locally. For B-roll pulled from Frame.io or Drive in step 3b, commit the originals into `delivery\<CODE>\broll\` and point the `pathurl`s there; if those files add up to more than about 2 GB, ask first whether the editor already has them locally.
 - 4K portrait sources get Basic Motion scale 50% (3840→1920). Check this on the first import.
+- A source that was rotated or cropped for the proxy gets the Basic Motion rotation, scale and position that reproduce what's recorded in `spec.json`. Add a marker naming those clips so the editor checks the framing.
 - Tracks:
   - V1: the cut, with speed changes as a `timeremap` speed %;
   - V2: placeholders and B-roll;
-  - V3: card PNGs as `stillframe`;
+  - V3: card PNGs, hook text overlays and the end card as `stillframe`;
   - A1: dialogue;
   - A2: music.
 - Markers at frame 0 covering the grade, loudness, card editability and any approximations.
@@ -321,6 +382,7 @@ Set `pathurl`s to that card folder. Append an `agent.json` message: "Approved v<
 - Never pass a beat off as Exact when it's only Close. A Close pick with a clear note beats a reviewer finding the gap.
 - For 4K HEVC iPhone clips, decode and transcode in the background. The cloud has 2 CPUs and 7 GB RAM.
 - Script-made files can't be committed via `stagedPath` (HTTP 400). Always use `SendUserFile` → fileUuid → `device_commit_files`.
+- Never rely on the workspace surviving between rounds. `spec.json` and `asr.json` on the user's computer are the saved state (step 7).
 - Never invent prices, gift values or claims. When a ticket says "confirm on the day", ask.
 - If the creator didn't record the scripted VO, say so before building and offer text-led or a supplied VO.
 - Never re-break subtitles the user marked with "/". Flag long cues instead of changing them.
