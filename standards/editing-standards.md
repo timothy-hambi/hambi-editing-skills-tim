@@ -1,8 +1,8 @@
 ---
 name: editing-standards
 description: Hambi Media house editing standards for HP (high-production) ad edits. Read by every editing skill (Premiere script-prompt, native/FFmpeg edit, QA) before planning, building or reviewing a cut.
-version: 1.0
-updated: 2026-11-07
+version: 1.1
+updated: 2026-11-20
 source: Frame.io INT/HP feedback, 8 Oct – 7 Nov 2026 (814 comments, 159 HP files, 19 clients)
 owner: Tim Tamon (Post Production Lead, Systems)
 ---
@@ -39,6 +39,9 @@ The rules are ordered by how often reviewers flagged each issue. Sections 1–3 
 - **C5.** Use numerals in captions (3, not three). The exception is a single 0 or 1 standing alone, where it could be misread as O, l or I.
 - **C6.** UK clients use UK spelling (Oestrogen, colour, moisturise, sulphates) and £, never $.
 - **C7.** Captions follow the approved script's punctuation and wording. Never paraphrase approved copy.
+- **C8.** Captions use correct sentence grammar, even though each cue is a single line. Keep full stops, commas, question marks and capitals; never strip them off the end of a cue. When a sentence spans several cues, its punctuation sits on the cue where it falls, and the cue that starts the next sentence opens with a capital (e.g. "with acne." then "It's the photos"). Where the punctuation comes from depends on the line:
+  - **Line said word for word from the ticket script:** copy the script's punctuation and capitals exactly (C7).
+  - **Line changed on the shoot** (words added, dropped or reworded): apply standard English grammar to what was actually said.
 
 ### 1b. Styling and placement
 
@@ -125,7 +128,7 @@ The rules are ordered by how often reviewers flagged each issue. Sections 1–3 
 
 Run this before every export. Any skill producing an edit must report pass or fail on each item.
 
-1. [ ] Every caption has been checked against the audio (C1–C7).
+1. [ ] Every caption has been checked against the audio, with sentence grammar kept: the script's punctuation for verbatim lines, standard grammar for lines changed on the shoot (C1–C8).
 2. [ ] Brand fonts are used, and all text is inside safe zones and centred (S1, S4).
 3. [ ] No text covers the product, faces or the CTA (S5).
 4. [ ] Every B-roll shot is on-story; there's no old packaging, wrong variant or obvious AI (B1, B3, B6).
@@ -148,6 +151,8 @@ Run this before every export. Any skill producing an edit must report pass or fa
 ### Changelog
 
 - 2026-11-07: v1.0 created from Frame.io INT/HP feedback, 8 Oct – 7 Nov 2026.
+- 2026-11-17: v1.1 added C8 (sentence grammar in captions: script punctuation for verbatim lines, standard grammar for lines changed on the shoot). Source: Tim's v1 notes on PF_HM_CM3_HP_C4.
+- 2026-11-20: Added Prep Kitchen to Client overrides. Source: CM1–CM4 EXT client feedback plus the Notion Brand Hub; full guide in prep-kitchen.md.
 
 ---
 
@@ -166,3 +171,4 @@ Run this before every export. Any skill producing an edit must report pass or fa
 | Smol | New product render. SLS in caps. Lift saturation only where specified. Smol end card with a whoosh. |
 | Omni | Apple-style emojis in overlays. Stock or real B-roll outside the AI sections. Latest Dental Stick CTA from the Brand Hub. |
 | Pure Pet Food | Follow script punctuation exactly. Equalise interview levels. Logo angle matches the bag. 30% off badge on the end card. |
+| Prep Kitchen | Full guide: `prep-kitchen.md`. Show current best-selling meals only (never off-menu items). Protein claims read "UP TO Xg PROTEIN". Say "macro balanced portions" and "READY IN 3 MINS". Use current packaging and box only, and don't trust AI packaging. Never put yellow headlines on white backgrounds. Sofia Pro font. Founders are "Mark & Will". |
