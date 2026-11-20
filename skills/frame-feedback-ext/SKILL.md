@@ -62,7 +62,9 @@ Create a living Claude Doc titled `EXT Feedback — <Project(s)> — <date range
 
 Get Tim's approval before writing to any Brand Hub page in Notion or to `editing-standards.md`. Once he approves:
 
-- update the Client overrides table in `editing-standards.md` (the Project doc and `D:\Hambi\03. Claude\SKILLS\editing-standards.md`), with a changelog line;
+- update the Client overrides table in the repo file `standards/editing-standards.md` (synced into the Project; local clone `D:\Hambi\03. Claude\hambi-editing-skills-tim\hambi-editing-skills-tim\standards\editing-standards.md`), with a changelog line;
+- create or update the client's guide at `brand-hubs/<client>.md` in the same clone (lowercase, hyphenated);
+- give Tim a suggested commit message so he can commit and push in GitHub Desktop, then click Sync now in the Project;
 - offer to draft the Brand Hub additions on the client's Notion Brand Hub page.
 
 Keep the chat reply to one line plus the doc link. If any project had no EXT/External folder, list it on a second line, e.g. "No EXT folder: P4 - Nuovva — chase AM".

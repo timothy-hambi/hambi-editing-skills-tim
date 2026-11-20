@@ -29,8 +29,8 @@ The edit is done in the cloud workspace with FFmpeg and Python. Premiere isn't n
 
 Same set as `hp-editor-agent`. A later file overrides an earlier one, and for **new or changed elements only**:
 
-1. **House standards:** `editing-standards.md` (Project doc `claude/editing-standards.md`, or `D:\Hambi\03. Claude\SKILLS\editing-standards.md`), including its Client overrides appendix.
-2. **Client rules:** `D:\Hambi\03. Claude\SKILLS\Client Rules\<Client>.md` if it exists, otherwise the client's Notion Brand Hub.
+1. **House standards:** `standards/editing-standards.md` (synced into the Project; local clone `D:\Hambi\03. Claude\hambi-editing-skills-tim\hambi-editing-skills-tim\standards\editing-standards.md`), including its Client overrides appendix.
+2. **Client rules:** `brand-hubs/<client>.md` in the repo (lowercase, hyphenated; local clone `D:\Hambi\03. Claude\hambi-editing-skills-tim\hambi-editing-skills-tim\brand-hubs\`) if it exists, otherwise the client's Notion Brand Hub.
 3. **The ticket.** What the ticket says wins. Flag any conflict.
 
 If `D:\Hambi\...` isn't reachable, say so in one line and carry on with the Project copy.
@@ -143,7 +143,7 @@ Write `<Seq base>_ChangeSheet_v<N>.md` to `/mnt/user-data/outputs/<Seq base>/`:
 **Things the ticket often leaves open. Ask, don't assume:**
 
 - The VO changes but the ticket doesn't mention captions. Captions that no longer match the audio break C1, so ask: reword them, or remove them?
-- "Use the same AI voice" with no voice named. Look in the original ticket, the Client Rules file and the Brand Hub. If it isn't written down, ask.
+- "Use the same AI voice" with no voice named. Look in the original ticket, the client's `brand-hubs/` file and the Notion Brand Hub. If it isn't written down, ask.
 - A longer line "so let the clips run slightly longer". Say how: extend each clip from its source if there's footage, otherwise slow it down, and by how much.
 
 **A light sense-check against the Optimisation**, one line each, as advice only:
@@ -236,7 +236,7 @@ Two things are specific to iterations:
 - **A note on a locked section** asks for something the ticket didn't. Don't just do it. Reply that it's outside the iteration and ask Tim whether to widen the scope. If he says yes, add it to the change list and shrink the locked range.
 - **A note that applies to every variation** (they share a body) is applied to all of them. Say so.
 
-After each round, sort the notes as the other skills do: all clients → offer `editing-standards.md`; this client → offer `Client Rules\<Client>.md`; this ad → stays on the ticket. Don't write any of these without an OK.
+After each round, sort the notes as the other skills do: all clients → offer `editing-standards.md`; this client → offer `brand-hubs/<client>.md`; this ad → stays on the ticket. Don't write any of these without an OK.
 
 ### 9. Approval → Premiere XML
 

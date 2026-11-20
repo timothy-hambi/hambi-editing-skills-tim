@@ -19,8 +19,8 @@ It does the same job as `/premiere-script-prompt` script mode, plus the build, b
 
 Load these on every run. A later file overrides an earlier one.
 
-1. **House standards:** `editing-standards.md`, either the Project doc `claude/editing-standards.md` or the local copy at `D:\Hambi\03. Claude\SKILLS\editing-standards.md`. This includes its Client overrides appendix.
-2. **Client rules:** `D:\Hambi\03. Claude\SKILLS\Client Rules\<Client>.md`, if the file exists. Tim adds these over time, so check the folder every run. If there's no file, use the client's Notion Brand Hub: the ticket's link first, otherwise search Notion for "<Client> Brand Hub". Never use an archived duplicate. If you find none or more than one, ask. Flag a hub marked WIP, OFFBOARDING or RE-ALIGNMENT. Read every image in it: settings screenshots give exact values, and an unticked checkbox means that setting is off.
+1. **House standards:** `standards/editing-standards.md` (synced into the Project; local clone `D:\Hambi\03. Claude\hambi-editing-skills-tim\hambi-editing-skills-tim\standards\editing-standards.md`). This includes its Client overrides appendix.
+2. **Client rules:** `brand-hubs/<client>.md` in the repo (lowercase, hyphenated; local clone `D:\Hambi\03. Claude\hambi-editing-skills-tim\hambi-editing-skills-tim\brand-hubs\`), if the file exists. Tim adds these over time, so check the folder every run. If there's no file, use the client's Notion Brand Hub: the ticket's link first, otherwise search Notion for "<Client> Brand Hub". Never use an archived duplicate. If you find none or more than one, ask. Flag a hub marked WIP, OFFBOARDING or RE-ALIGNMENT. Read every image in it: settings screenshots give exact values, and an unticked checkbox means that setting is off.
 3. **Style Library:** `D:\Hambi\03. Claude\Style Library\<Category>\`. Tim keeps adding categories and example edits (current categories: UGC Talking Head, UGC Non-talking head, Street Interview, Podcast). See step 2.
 4. **The ticket:** what the ticket says wins. Flag any conflict with a client rule.
 
@@ -270,7 +270,7 @@ Then upload them to **Edit Review**, the local Frame.io-style review app. Don't 
 After each round, sort the notes:
 
 - **All clients:** offer to add them to `editing-standards.md`.
-- **This client only:** offer to add them to `Client Rules\<Client>.md`, creating it if needed.
+- **This client only:** offer to add them to `brand-hubs/<client>.md` in the repo, creating it if needed.
 - **Tim's own style:** offer to add them to the category's `_style_profile.md`.
 
 Don't write any of these without an OK.

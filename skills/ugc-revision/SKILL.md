@@ -13,7 +13,7 @@ The edit is done in the cloud workspace with FFmpeg and Python. Premiere isn't n
 
 1. **Approval gate.** Never render before the user approves a cut sheet. Never export the XML before the user says the edit is final ("approved, no more notes").
 2. **One source of truth.** All edit decisions live in `spec.json`. The renderer and the XML builder both read it, so the MP4 and the XML can't drift apart.
-3. **House standards.** Read `editing-standards.md` before planning. It lives in the Project as `claude/editing-standards.md` and locally at `D:\Hambi\03. Claude\SKILLS\editing-standards.md`. Run its pre-export checklist on every render.
+3. **House standards.** Read `editing-standards.md` before planning. It lives in the repo as `standards/editing-standards.md` (synced into the Project; local clone `D:\Hambi\03. Claude\hambi-editing-skills-tim\hambi-editing-skills-tim\standards\editing-standards.md`). Also read the client's `brand-hubs/<client>.md` if it exists. Run its pre-export checklist on every render.
 4. **Brand rules.** Pull fonts, colours, offer wording and banned visuals from the client's Brand Hub and the Client overrides in `editing-standards.md`. If a brand font file isn't available, ask once. If none is supplied, use the agreed stand-in and flag it.
 5. **Ticket overrides.** Ticket instructions beat client comments. For example, "ignore the hat/table comment" means you keep those.
 6. **Version every round.** Use `vN` in every filename, put each round's exports in their own `Exports vN` folder, and never overwrite a delivered version.

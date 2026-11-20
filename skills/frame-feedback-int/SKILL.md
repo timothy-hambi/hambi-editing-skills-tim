@@ -44,7 +44,7 @@ Sort every comment into **one** of three buckets:
 
 Tag every General comment with the standards section it falls under: Captions (C/S), B-roll (B), Pacing (P), Hooks (H), Grade (G), Audio (A), CTA (E) or Compliance (K). Count the comments per theme.
 
-Compare the findings against the current `editing-standards.md` (Project doc `claude/editing-standards.md`). Mark each finding as:
+Compare the findings against the current `editing-standards.md` (repo file `standards/editing-standards.md`, synced into the Project). Mark each finding as:
 
 - **Already covered** — recurring breaches show a training or QA gap, not a missing rule.
 - **New rule** — propose wording.
@@ -62,7 +62,7 @@ Create a living Claude Doc titled `INT Feedback — <Project(s)> — <date range
 5. **Client overrides** — a table of client → rules to add to the Brand Hub.
 6. **Next steps** — checkboxes: approve the standards changes, update the Brand Hub, cover the repeat issues in team training or QA.
 
-**Don't edit `editing-standards.md` without Tim's approval.** Once he approves, update the Project doc and the local copy at `D:\Hambi\03. Claude\SKILLS\editing-standards.md`, bump `version` and `updated`, and add a changelog line.
+**Don't edit `editing-standards.md` without Tim's approval.** Once he approves, update the repo file `standards/editing-standards.md` (synced into the Project; local clone `D:\Hambi\03. Claude\hambi-editing-skills-tim\hambi-editing-skills-tim\standards\editing-standards.md`), bump `version` and `updated`, and add a changelog line. Then give Tim a suggested commit message so he can commit and push in GitHub Desktop, then click Sync now in the Project.
 
 Keep the chat reply to one line plus the doc link. If any project had no INT/Internal folder, list it on a second line, e.g. "No INT folder: P4 - Nuovva — chase AM".
 
