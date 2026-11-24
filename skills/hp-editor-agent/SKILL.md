@@ -14,6 +14,7 @@ It does the same job as `/premiere-script-prompt` script mode, plus the build, b
 - It searches the client's Frame.io and Google Drive for B-roll before falling back to stock or placeholders, so editors don't have to supply every shot by hand (step 3b).
 - It renders v1, then works through feedback rounds (v2, v3…).
 - When the edit is approved, it delivers a **Premiere Pro XML** and the **subtitle SRTs**.
+- It logs each stage's workload and usage to the HP Editor Usage Log in Notion, with a local CSV copy, so the cost of a run can be measured on the Team plan (step 10).
 
 ## Reference files
 
@@ -52,7 +53,8 @@ A job's edit decisions are saved on the user's computer after every version (ste
 1. Work out the job code from the message (`HP-editor-agent: notes done for <CODE> v<N>`, `APPROVED <CODE> v<N>`) or from the ticket's naming (step 1).
 2. Run `device_list_dir` on `D:\Hambi\03. Claude\Edit Review\jobs\<Seq base>\`.
 3. **If the folder has a `work\spec.json`:** this is a job in progress. Don't start again from step 1.
-   - Stage `job.json`, `work\spec.json`, `work\asr.json`, `notes.json` and `status.json`.
+   - Stage `job.json`, `work\spec.json`, `work\asr.json`, `work\usage.json` (if it exists), `notes.json` and `status.json`.
+   - Add 1 to `sessions` in `usage.json` (step 10).
    - Say in one line which version you're resuming from.
    - Rebuild proxies only for the sources the sequences being re-rendered use, from the source links recorded in `spec.json`. Don't transcribe again; `asr.json` already has the word timings.
    - Carry on at step 8 (feedback) or step 9 (approval).
@@ -69,6 +71,7 @@ Report this as one short table. It's read-only, and any ❌ that blocks the job 
 - **Computer:** `device_list_dir` on the Style Library.
 - **Disk:** `df -h` on the workspace. Note the free space; step 3b checks each download batch against it.
 - **Cloud tools:** check `ffmpeg -version`, and install faster-whisper with `pip install faster-whisper --break-system-packages`.
+- **Usage baseline:** start the stage clock and ask for the before readings, as in step 10. This doesn't go in the table and doesn't block the run.
 
 ### 1. Read the brief
 
@@ -294,11 +297,13 @@ Then upload them to **Edit Review**, the local Frame.io-style review app. Don't 
 3. **Save the working files.** After every version, commit these into `jobs\<Seq base>\work\` with `SendUserFile` → fileUuid → `device_commit_files`:
    - `spec.json`, the current edit decisions;
    - `spec_v<N>.json`, a copy kept for each version so a round can be rolled back;
-   - `asr.json`, the word-level transcripts, and the corrections table.
+   - `asr.json`, the word-level transcripts, and the corrections table;
+   - `usage.json`, the usage counters for the stage in progress (step 10).
 
    Without these, a feedback round in a new session would have to start from nothing. Proxies aren't saved, because they can be rebuilt from the source links in `spec.json`.
 4. **Message the app.** Append to `agent.json` `messages` (`{at, version, text}`), e.g. "v1 uploaded: 3 hooks + body, 0:48 avg". It shows on the job's status line.
 5. **Chat.** Write 3–5 lines: "v<N> is in Edit Review", the job code, runtime per hook, style applied, ⚠️ items and open questions. Ask the user to leave timestamped notes in Edit Review, then click **Notes done → revise** or **Approve v<N>**.
+6. **Usage row.** On v1, write the `v1` usage row (step 10) and put the after-readings question in this summary.
 
 **If Edit Review isn't reachable** (the computer isn't linked), fall back to `SendUserFile` with `display: render` in chat, and say so.
 
@@ -334,6 +339,8 @@ After each round, sort the notes:
 - **Tim's own style:** offer to add them to the category's `_style_profile.md`.
 
 Don't write any of these without an OK.
+
+Then write the round's usage row (step 10). Ask for the next round's before readings when the next notes arrive.
 
 ### 9. Approval → Premiere Pro XML + SRTs
 
@@ -373,6 +380,102 @@ First stage `status.json` and check that the approved version is the latest. If 
 
 Set `pathurl`s to that card folder. Append an `agent.json` message: "Approved v<N> delivered: XML, SRTs, cards in delivery\<CODE>". Offer to test-import through the Premiere MCP if Premiere is open.
 
+Then write the approval usage row (step 10).
+
+### 10. Usage log
+
+The Team plan has no per-skill or per-member usage view, so this log is how Tim measures what a run costs. Claude can't see tokens, limits or spend, so the log records the workload Claude can count, plus the usage readings the user gives. **Logging never blocks, delays or replaces a delivery.**
+
+**Stages.** Write one row per stage, holding only that stage's numbers, so a job's total is the sum of its rows:
+
+- `v1`: preflight to v1 in Edit Review (step 7);
+- `round`: one feedback round, notes to v<N+1> (step 8);
+- `approval`: the Premiere hand-off (step 9);
+- `stopped`: the run ended early after work had started (a blocking ❌ after downloads, the user abandons the job, an unrecoverable error). Say why in `notes`.
+
+The Cowork-check refusal logs nothing, because nothing ran.
+
+**Start of a stage**
+
+1. Record `started` with `date -u +%FT%TZ`.
+2. Ask for the before readings in one line, then carry on without waiting:
+   > Before I start: what do your **current session** and **weekly** usage show on the Usage page in Settings? Reply like `12 / 40`, or `skip`.
+3. Start a fresh `stage` block in `work\usage.json` with every counter at 0. On a resumed job, keep the job's earlier rows untouched.
+
+**Counters (kept in `usage.json` as you go)**
+
+- `footage_clips`, `footage_min`: clips downloaded for the cut and their total minutes;
+- `download_gb`: everything downloaded, footage and B-roll;
+- `transcribed_min`: minutes run through faster-whisper;
+- `broll_beats`, `broll_exact`, `broll_close`, `broll_placeholder`, `broll_candidates_checked`;
+- `sequences_rendered`: sequences delivered this stage;
+- `render_passes`: every FFmpeg render, including QC re-renders;
+- `output_min`: total minutes of the delivered MP4s;
+- `notes_actioned`: notes marked done or dismissed;
+- `tool_calls_approx`: Claude's own count of tool calls this stage (label it approximate);
+- `sessions`: 1, plus 1 each time the Resume check picks the job up in a new session.
+
+**End of a stage**
+
+1. Record `ended` and work out `wall_min`.
+2. Ask for the after readings in the closing chat summary, in one line: "For the usage log: what do session and weekly show now?"
+3. **Write the row to both places, local first,** so the editor always keeps a copy even if Notion fails.
+   1. **Local CSV:** `D:\Hambi\03. Claude\Edit Review\usage-log.csv` on the editor's computer.
+      - Stage it with `device_stage_files`. If it doesn't exist, create it with the header below.
+      - Append the row with `notion_url` blank, then commit with `SendUserFile` → fileUuid → `device_commit_files`, the same as the other script-made files.
+      - Never edit or reorder other rows. The only rows you may change are this stage's own (after readings) and blank `notion_url`s (point 4 below).
+   2. **Notion:** create a page in the **HP Editor Usage Log** database with `notion-create-pages`, parent `data_source_id` `42211884-e3c9-8199-90c2-000b878f1bf8` (database: https://app.notion.com/p/42211884e3c9814990ffcc9c7f80f1c0, on the HP Editor Skill Usage page).
+      - Fill the properties from the same row, using the mapping below. Use `allow_async: false`, so the page URL comes back straight away.
+      - Write the returned page URL into the row's `notion_url` and commit the CSV again.
+   3. **If the Notion write fails,** don't retry in a loop and don't hold up the delivery. Leave `notion_url` blank, say in one line that the row is saved locally and will sync next time, and carry on.
+4. **Sync pending rows.** At the start of every stage, and before a usage summary, check the local CSV for rows with a blank `notion_url`. Create a Notion page for each, then fill in its `notion_url`. Before creating one, search the database for a page with the same Run title and Started time, so a row that reached Notion without its URL being saved isn't added twice.
+5. **When the after readings arrive** (a reply, or in the same message as the next stage's notes or approval):
+   - Fill them in on the CSV row, recompute the deltas and commit.
+   - Update the same Notion page (from `notion_url`) with `notion-update-page`: the four readings, both deltas, and Notes if a reset was flagged. If the row has no `notion_url` yet, point 4 will carry the readings across when it syncs.
+   - If the readings never arrive, leave them blank in both places. Never estimate a reading.
+
+**Columns**
+
+```
+logged_at,job,client,ticket,editor,ad_type,mode,category,stage,version,started,ended,wall_min,sessions,footage_clips,footage_min,download_gb,transcribed_min,broll_beats,broll_exact,broll_close,broll_placeholder,broll_candidates_checked,sequences_rendered,render_passes,output_min,notes_actioned,tool_calls_approx,session_before,session_after,session_delta,weekly_before,weekly_after,weekly_delta,notes,notion_url
+```
+
+**Notion property mapping.** Number properties take numbers; leave a property out when its value is blank.
+
+| CSV column | Notion property |
+|---|---|
+| (job + stage) | **Run** (title): `<job> · <stage>`, or `<job> · round v<N>` for a round |
+| job, client, editor, ad_type, notes | Job, Client, Editor, Ad Type, Notes |
+| ticket | Ticket |
+| mode | Mode: `A Dialogue`, `B VO` or `C Text-led` |
+| category | Category (select; a new Style Library category is added as a new option) |
+| stage, version | Stage, Version |
+| started, ended | `date:Started:start`, `date:Ended:start`, each with `is_datetime` 1 |
+| wall_min, sessions | Wall min, Sessions |
+| footage_clips, footage_min, download_gb, transcribed_min | Footage clips, Footage min, Download GB, Transcribed min |
+| broll_beats, broll_exact, broll_close, broll_placeholder, broll_candidates_checked | B-roll beats, B-roll exact, B-roll close, B-roll placeholder, B-roll candidates checked |
+| sequences_rendered, render_passes, output_min, notes_actioned, tool_calls_approx | Sequences rendered, Render passes, Output min, Notes actioned, Tool calls (approx) |
+| session_before, session_after, session_delta | Session before %, Session after %, Session delta % |
+| weekly_before, weekly_after, weekly_delta | Weekly before %, Weekly after %, Weekly delta % |
+
+`logged_at` and `notion_url` stay in the CSV only. Notion sets **Logged** and **Run ID** itself.
+
+- `editor`: the editor named on the ticket; otherwise the person running the job if they've said who they are; otherwise blank.
+- `mode`: A, B or C (step 1). `category`: the Style Library category (step 2).
+- **Deltas:** after minus before. If an after reading is lower than its before, the limit reset during the stage: leave that delta blank and put `session reset` or `weekly reset` in `notes`.
+- `notes`: anything that skews the numbers, e.g. a style profile rebuild, a resumed session that re-made proxies, a long wait for the line breaks, or other Claude work done during the stage.
+
+**If the computer isn't linked** (no local CSV), still write the Notion page, and also put the row in chat as one CSV line in a code block, so the editor can paste it into their local log.
+
+**Usage summary.** When Tim asks for a usage summary or report, sync any pending rows first (point 4), then read the Notion database, which holds every editor's runs. If Notion isn't reachable, use the local CSV and say it covers this computer only. Report in a few lines or a small table:
+
+- the average session and weekly delta per stage, and per finished job (v1 + rounds + approval);
+- the same split by mode, category and client, once there are at least 3 jobs in a group;
+- which counters move with the deltas (e.g. transcribed minutes or render passes), as the likely cost drivers;
+- how many rows have no readings, since those can't be counted.
+
+With fewer than about 10 rows that have readings, say the numbers are early and may move.
+
 ## Pitfalls
 
 - The Frame.io audit log errors on this account; don't use it.
@@ -386,4 +489,6 @@ Set `pathurl`s to that card folder. Append an `agent.json` message: "Approved v<
 - Never invent prices, gift values or claims. When a ticket says "confirm on the day", ask.
 - If the creator didn't record the scripted VO, say so before building and offer text-led or a supplied VO.
 - Never re-break subtitles the user marked with "/". Flag long cues instead of changing them.
+- The usage log is written locally first, then to Notion. A Notion failure never loses a row: the CSV keeps it and step 10 syncs it next time.
+- Never estimate or invent a usage reading. A blank reading is fine; a guessed one spoils the benchmark.
 - Edit Review can't wake this chat: its buttons save `status.json` and copy a ready-to-paste message. Always read `status.json` and `notes.json` fresh (stage them again) at the start of each round. Never trust an earlier copy, because the user may have added notes since.
