@@ -264,9 +264,10 @@ def sync(a):
     _, ext, _ = load(a.dir)
     ch = sync_changes(ext, json.load(open(a.cal)), D(a.today))
     writes = ch["set"] + ch["delete"]
-    if writes:
-        writes.append({"op": "set", "collection": "meta", "doc_id": "extSync",
-                       "data": {"at": int(time.time() * 1000), "by": None, "count": len(ext) + len(ch["set"]) - len(ch["delete"])}})
+    # always stamp the sync time, so the app shows the hourly run is alive even when nothing changed
+    writes.append({"op": "set", "collection": "meta", "doc_id": "extSync",
+                   "data": {"at": int(time.time() * 1000), "by": None, "byLabel": "Claude (ppm-overview, token)",
+                            "count": len(ext) + len([w for w in ch["set"] if w["doc_id"] not in {e["id"] for e in ext}]) - len(ch["delete"])}})
     print(f"{len(ch['set'])} EXT entr(ies) to add/update, {len(ch['delete'])} to remove.")
     print("```json\n" + json.dumps({"writes": writes}, indent=1) + "\n```")
 

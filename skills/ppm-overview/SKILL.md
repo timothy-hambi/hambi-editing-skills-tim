@@ -1,5 +1,5 @@
 ---
-name: "ppm-overview"
+name: ppm-overview
 description: PPM (Post Production Manager) skill for Hambi Media's editing team, used by Sam Lloyd as PPM and by Tim Tamon when covering as Acting PPM. It runs the PPM's planning and oversight from the Monthly editor allocation app (editors by Mon–Fri, EXT dates synced from the Notion Project Management calendar, slots linked to pipeline concepts). Every run opens with a PPM overview of EXT dates that moved, INT dates too close to or after their EXT, deliveries with nothing allocated, approved concepts not yet ticketed or planned, and editor capacity. It then makes the changes asked for, such as shifting every affected editor's INT date when a brand's EXT moves, reassigning or adding tickets, marking someone unavailable, building next month's allocation, or refreshing the concept list. Use it whenever anyone mentions the PPM role, ticket allocation, the allocation app, INT or EXT dates, editor capacity, who's on what, covering Sam, Acting PPM, concepts or buckets, or planning next month, even without saying "skill".
 ---
 
@@ -13,23 +13,28 @@ Read `references/app-data.md` at the start of every run: it has the app URL, the
 
 ## Step 1 — Load data (every run)
 
-1. App data, with the Artifact tool, `action: "read_db"`, `url` = the app URL, `out_dir: /home/claude/ppm/app`:
+1. App data, with the Artifact tool, `action: "read_db"`, `url` = the app URL, `out_dir: /mnt/user-data/outputs/ppm/app` (read_db only saves under /mnt/user-data/outputs; delete that folder at the end of the run):
    - `tickets`, `db_op: "query"`, `query.where: [["month","eq","YYYY-MM"]]` for the current month and the next month (two calls; page with `query.cursor` if `next_cursor` comes back).
    - `ext`, `db_op: "list"` (page until done).
    - `meta`, `db_op: "list"` (gives `roster`, `extSync`, `import`).
    Keep the tool's listing text: it shows each document's **version**, which you need for `if_version` when writing.
    If `tickets` is empty and `meta/import` is missing, the one-time import hasn't run: tell the user to open the app and click **Import from Notion**, then stop.
-2. EXT calendar, with `notion-query-data-sources` (SQL, one data source): the Project Management data source, rows where `Key Deadline` contains "EXT" and "Delivery" and not "Design", dated from 35 days ago to 120 days ahead, `ORDER BY url LIMIT 100 OFFSET n` until fewer than 100 come back. Save the rows as `/home/claude/ppm/cal.json`.
+2. EXT calendar. **Token route (preferred):** `API-query-data-source` on `18b11884-e3c9-8021-a12b-000b970904c2`, `page_size: 100`, `filter_properties: ["title","<Dates property id>"]` (or no filter_properties), filter
+   ```json
+   {"and":[{"property":"Key Deadline","title":{"contains":"EXT"}},{"property":"Key Deadline","title":{"contains":"Delivery"}},
+           {"property":"Dates","date":{"on_or_after":"<today minus 35 days>"}},{"property":"Dates","date":{"on_or_before":"<today plus 120 days>"}}]}
+   ```
+   following `next_cursor`. **Connector route (fallback):** `notion-query-data-sources` SQL on the same data source with the same conditions, `ORDER BY url LIMIT 100 OFFSET n`. Either way, save the rows to `/home/claude/ppm/cal.json` as a list of `{"url": <page url>, "Key Deadline": <title text>, "date:Dates:start": <Dates start>}`.
 
 ## Step 2 — Overview (every run, before anything else)
 
 ```
-python3 scripts/allocation.py overview --dir /home/claude/ppm/app --cal /home/claude/ppm/cal.json --today YYYY-MM-DD --weeks 3
+python3 scripts/allocation.py overview --dir /mnt/user-data/outputs/ppm/app --cal /home/claude/ppm/cal.json --today YYYY-MM-DD --weeks 3
 ```
 
 Use the UK date. Turn the output into a short reply, skipping empty sections:
 
-0. **Calendar changes the app hasn't picked up** (nobody has opened the app since). Run `sync` (below) and apply it, then reload the app data before going further. Mirroring the calendar into the EXT row is what the app does on its own every 30 minutes, so this write doesn't need approval, but say what changed.
+0. **Calendar changes the app hasn't picked up** (nobody has opened the app since). Run `sync` (below) and apply it, then reload the app data before going further. Mirroring the calendar into the EXT row is what the hourly EXT sync does anyway, so this write doesn't need approval, but say what changed.
 1. **EXT moves waiting on INT shifts.** Moves later are breathing room; moves earlier are risk. Offer to shift each one (Step 3).
 2. **INT within a working day of its EXT, or after it.** A 🔴 can also mean the brand's real EXT isn't in the calendar yet (Noted Aromas C1–C7 is a known case); say which is likelier.
 3. **EXT deliveries with nothing matched** — possible missed allocation, or tickets named without the brand. UGC deliveries may be handled elsewhere.
@@ -48,7 +53,7 @@ Always show a before/after table, ask for approval, then write with `action: "wr
 
 ### An EXT date moved
 - If the app already recorded it (overview section 1), run
-  `python3 scripts/allocation.py shift --dir … --today … --ext <ext id>`.
+  `python3 scripts/allocation.py shift --dir /mnt/user-data/outputs/ppm/app --today … --ext <ext id>`.
 - For a manual EXT, or if the user tells you before the calendar changes, run it with `--from OLD --to NEW` (then also `update` the manual EXT's `date`), and remind them the AM should update the calendar too.
 The script keeps each editor's buffer (moves INT by the same number of working days), caps INT at 1 working day before the new EXT, respects the 2-tickets-per-day limit and moves clashes to the nearest free day. Sanity-check it: if a move squeezes someone below 2 working days or lands on someone already heavy that week, suggest a swap with an editor who has room. On approval, apply the printed `writes` (they also mark the EXT move as handled, which clears the yellow ring in the app). Offer a draft Slack message to the affected editors.
 
@@ -73,6 +78,15 @@ Rules learned from Sam's November plan — confirm with the user if anything con
 - Skip weekends and UK bank holidays (25 Dec, 28 Dec 2026, 1 Jan 2027).
 
 Present the draft as a grid per week (EXT row on top, editors in the app's roster order) with weekly totals, iterate, and only on approval write it as batches of `set` writes to `tickets`. Tell the user to open the app's next month to check it.
+
+## EXT sync only (hourly scheduled run)
+
+When the prompt is "sync the EXT dates into the allocation app" (the hourly scheduled task), skip the overview and do only this:
+
+1. Load the EXT calendar with the **token route** (Step 1, item 2). If the token tools aren't available, stop and say so in one line: the app's **Sync EXT dates** button is the manual fallback through the connector, so don't use the connector here.
+2. `read_db` the app's `ext` collection (`db_op: "list"`, `out_dir: /mnt/user-data/outputs/ppm/app`).
+3. `python3 scripts/allocation.py sync --dir /mnt/user-data/outputs/ppm/app --cal /home/claude/ppm/cal.json --today YYYY-MM-DD`, then apply the printed `writes` with `write_db` `db_op: "batch"` (max 50 per call). It always stamps `meta/extSync`, so the app shows the hourly run is working even when nothing changed. Moved dates get `prevDate` and `moveHandled: false`, which puts the yellow ring on them in the app; don't shift any INT dates in this mode.
+4. Reply in one or two lines: how many EXT entries were added, moved or removed, and name any moved ones. Delete `/mnt/user-data/outputs/ppm` afterwards.
 
 ## Step 5 — Refresh the concept list (bucket split)
 
