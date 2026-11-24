@@ -1,5 +1,5 @@
 ---
-name: ppm-overview
+name: "ppm-overview"
 description: PPM (Post Production Manager) skill for Hambi Media's editing team, used by Sam Lloyd as PPM and by Tim Tamon when covering as Acting PPM. It runs the PPM's planning and oversight from the Monthly editor allocation app (editors by Mon–Fri, EXT dates synced from the Notion Project Management calendar, slots linked to pipeline concepts). Every run opens with a PPM overview of EXT dates that moved, INT dates too close to or after their EXT, deliveries with nothing allocated, approved concepts not yet ticketed or planned, and editor capacity. It then makes the changes asked for, such as shifting every affected editor's INT date when a brand's EXT moves, reassigning or adding tickets, marking someone unavailable, building next month's allocation, or refreshing the concept list. Use it whenever anyone mentions the PPM role, ticket allocation, the allocation app, INT or EXT dates, editor capacity, who's on what, covering Sam, Acting PPM, concepts or buckets, or planning next month, even without saying "skill".
 ---
 
@@ -34,7 +34,7 @@ python3 scripts/allocation.py overview --dir /mnt/user-data/outputs/ppm/app --ca
 
 Use the UK date. Turn the output into a short reply, skipping empty sections:
 
-0. **Calendar changes the app hasn't picked up** (nobody has opened the app since). Run `sync` (below) and apply it, then reload the app data before going further. Mirroring the calendar into the EXT row is what the hourly EXT sync does anyway, so this write doesn't need approval, but say what changed.
+0. **Calendar changes the app hasn't picked up** (nobody has opened the app since). Run `sync` (below) and apply it, then reload the app data before going further. Mirroring the calendar into the EXT row is what the app's own auto-sync does anyway, so this write doesn't need approval, but say what changed.
 1. **EXT moves waiting on INT shifts.** Moves later are breathing room; moves earlier are risk. Offer to shift each one (Step 3).
 2. **INT within a working day of its EXT, or after it.** A 🔴 can also mean the brand's real EXT isn't in the calendar yet (Noted Aromas C1–C7 is a known case); say which is likelier.
 3. **EXT deliveries with nothing matched** — possible missed allocation, or tickets named without the brand. UGC deliveries may be handled elsewhere.
@@ -79,13 +79,15 @@ Rules learned from Sam's November plan — confirm with the user if anything con
 
 Present the draft as a grid per week (EXT row on top, editors in the app's roster order) with weekly totals, iterate, and only on approval write it as batches of `set` writes to `tickets`. Tell the user to open the app's next month to check it.
 
-## EXT sync only (hourly scheduled run)
+## EXT sync only (on request)
 
-When the prompt is "sync the EXT dates into the allocation app" (the hourly scheduled task), skip the overview and do only this:
+The app syncs EXT dates itself: when Sam or Tim opens it in the Claude desktop app with the Notion token connected as `notionApi`, it syncs if the last sync is over 30 minutes old and re-checks every 10 minutes while open (no connector allowance used). In a browser it doesn't auto-sync; the **Sync EXT dates** button tries the token first and falls back to the connector. No hourly scheduled task is needed.
+
+When the prompt is "sync the EXT dates into the allocation app", skip the overview and do only this:
 
 1. Load the EXT calendar with the **token route** (Step 1, item 2). If the token tools aren't available, stop and say so in one line: the app's **Sync EXT dates** button is the manual fallback through the connector, so don't use the connector here.
 2. `read_db` the app's `ext` collection (`db_op: "list"`, `out_dir: /mnt/user-data/outputs/ppm/app`).
-3. `python3 scripts/allocation.py sync --dir /mnt/user-data/outputs/ppm/app --cal /home/claude/ppm/cal.json --today YYYY-MM-DD`, then apply the printed `writes` with `write_db` `db_op: "batch"` (max 50 per call). It always stamps `meta/extSync`, so the app shows the hourly run is working even when nothing changed. Moved dates get `prevDate` and `moveHandled: false`, which puts the yellow ring on them in the app; don't shift any INT dates in this mode.
+3. `python3 scripts/allocation.py sync --dir /mnt/user-data/outputs/ppm/app --cal /home/claude/ppm/cal.json --today YYYY-MM-DD`, then apply the printed `writes` with `write_db` `db_op: "batch"` (max 50 per call). It always stamps `meta/extSync`, so the app shows when it was last synced even when nothing changed. Moved dates get `prevDate` and `moveHandled: false`, which puts the yellow ring on them in the app; don't shift any INT dates in this mode.
 4. Reply in one or two lines: how many EXT entries were added, moved or removed, and name any moved ones. Delete `/mnt/user-data/outputs/ppm` afterwards.
 
 ## Step 5 — Refresh the concept list (bucket split)
@@ -96,7 +98,7 @@ Concepts are what the app's **Linked concept** dropdown shows. A slot linked to 
 
 **Route.** Use the token (`notionApi` `API-…` tools). Without it (claude.ai in a browser), only do a one-client refresh through the connector (2 queries: that pipeline and Editor Tickets); for a full refresh say it needs Claude Desktop with the token, or do the brands in the current week until the hourly limit, then stop and list the rest.
 
-**Who can save.** Only the app's owner (Tim) can save from chat. If someone else runs it and `write_db` is refused, say so and stop; don't retry.
+**Who can save.** The app's owners (Sam and Tim) can save from chat. If anyone else runs it and `write_db` is refused, say so and stop; don't retry.
 
 1. **Existing concepts and tickets.** `read_db` the app: `concepts` (`db_op: "list"`) and this month's and next month's `tickets` (`query` on `month`), with `out_dir: /mnt/user-data/outputs/ppm/app` (read_db only saves under /mnt/user-data/outputs; delete that folder when the run is done).
 2. **Pipelines.** Use `references/pipelines.md`; for a one-client refresh, just that client. Find any client not listed with `API-post-search` (query "Review Pipeline", `filter: {"property":"object","value":"data_source"}`), and note new ones in the summary.
