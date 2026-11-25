@@ -329,10 +329,21 @@ Tell the user what the XML is: the locked sections are the flattened original, n
 
 Validate the XML: it parses, ids are unique, each file is defined once, and there's one sequence per variation.
 
+**The delivery set** is always:
+
+- the XML;
+- the **approved export**, one `<Seq>_v<N>.mp4` per variation. This is the exact render that passed the lock check and was approved, ready to upload or send without opening Premiere;
+- the **original export** the XML points at;
+- any SRTs, new VO files and card PNGs (in `cards\`).
+
+Don't re-encode or re-render the approved MP4 for delivery. Reuse the file (or its fileUuid) from the approved round.
+
 **Deliver:**
 
-- **Edit Review mode:** `SendUserFile` (`attach`), then `device_commit_files` the XML, any SRTs, the new VO files and card PNGs (in `cards\`) into `<ER>\delivery\<CODE>\`. Point the `pathurl`s there. Append an `agent.json` message: "Approved v<N> delivered: XML in delivery\<CODE>".
-- **Chat mode:** `SendUserFile` (`attach`) each file. If a folder is connected, also commit them into a `<Seq base>_delivery\` subfolder there and point the `pathurl`s at it. If nothing is connected, the `pathurl`s can't be known: put the original export, VO and cards beside the XML, say they need relinking on import, and add a frame-0 marker saying so.
+- **Edit Review mode:** `SendUserFile` (`attach`), then `device_commit_files` the delivery set into `<ER>\delivery\<CODE>\`. Point the `pathurl`s there. Append an `agent.json` message: "Approved v<N> delivered: XML, export MP4s and original in delivery\<CODE>".
+- **Chat mode:** `SendUserFile` (`attach`) the delivery set, with the approved MP4s first. If a folder is connected, also commit them into a `<Seq base>_delivery\` subfolder there and point the `pathurl`s at it. If nothing is connected, the `pathurl`s can't be known: say the media needs relinking on import, and add a frame-0 marker saying so.
+
+In the chat summary, list the approved MP4s by name and duration before the XML.
 
 ## Naming
 
