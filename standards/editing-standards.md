@@ -1,7 +1,7 @@
 ---
 name: editing-standards
 description: Hambi Media house editing standards for HP (high-production) ad edits. Read by every editing skill (Premiere script-prompt, native/FFmpeg edit, QA) before planning, building or reviewing a cut.
-version: 1.2
+version: 1.3
 updated: 2026-11-25
 source: Frame.io INT/HP feedback, 8 Oct – 7 Nov 2026 (814 comments, 159 HP files, 19 clients)
 owner: Tim Tamon (Post Production Lead, Systems)
@@ -75,6 +75,7 @@ The rules are ordered by how often reviewers flagged each issue. Sections 1–3 
 - **B10.** Match on-screen visuals to the wording. A "meal deal" must look like a UK meal deal, a "scoop" must be a scoop, and the "fridge" line needs a fridge.
 - **B11.** Pick talent and B-roll subjects that match the target persona's age and look (e.g. women aged 40–50 for a 46-year-old pain point).
 - **B12.** **Multi-camera shoots:** when the shot is on one person, use the B-cam (or whichever camera is framed on that person). Use the A-cam full frame (wide) only in split screens. Only crop the A-cam to one person when no other camera covers that moment, and flag it. (Added 2026-11-25)
+- **B13.** **Check selfie footage for mirroring.** Front-camera UGC is often saved mirrored. Before using any shot, check on-pack text, logos and any visible writing; if it reads backwards, apply Horizontal Flip so the packaging is readable. Flip every shot from that source the same way, and flag flipped clips in the cut sheet. (Added 2026-11-25)
 
 ## 3. Cuts and pacing
 
@@ -133,7 +134,7 @@ Run this before every export. Any skill producing an edit must report pass or fa
 1. [ ] Every caption has been checked against the audio, with sentence grammar kept: the script's punctuation for verbatim lines, standard grammar for lines changed on the shoot (C1–C8).
 2. [ ] Brand fonts are used, and all text is inside safe zones and centred (S1, S4).
 3. [ ] No text covers the product, faces or the CTA (S5).
-4. [ ] Every B-roll shot is on-story; there's no old packaging, wrong variant or obvious AI (B1, B3, B6).
+4. [ ] Every B-roll shot is on-story; there's no old packaging, wrong variant, mirrored pack text or obvious AI (B1, B3, B6, B13).
 5. [ ] No clipped words, dead air or missing script lines (P2, P5).
 6. [ ] The hook has a sound-off text overlay and opens on the strongest visual (H1, H2).
 7. [ ] There's one consistent grade and no glitches (G1, G3).
@@ -156,6 +157,7 @@ Run this before every export. Any skill producing an edit must report pass or fa
 - 2026-11-17: v1.1 added C8 (sentence grammar in captions: script punctuation for verbatim lines, standard grammar for lines changed on the shoot). Source: Tim's v1 notes on PF_HM_CM3_HP_C4.
 - 2026-11-20: Added Prep Kitchen to Client overrides. Source: CM1–CM4 EXT client feedback plus the Notion Brand Hub; full guide in prep-kitchen.md.
 - 2026-11-25: v1.2 added P9 (cut off-camera voices and slate countdowns) and B12 (B-cam for single-person shots, A-cam full frame for split screens). Source: Tim's v1 notes on Rheal_HM_CM8_HP_C7.
+- 2026-11-25: v1.3 added B13 (check selfie/front-camera footage for mirrored packaging and flip it). Source: Tim's v1 notes on RC_HM_CM2_IT_C1.
 
 ---
 
