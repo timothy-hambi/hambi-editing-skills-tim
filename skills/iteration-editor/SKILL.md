@@ -1,6 +1,6 @@
 ---
 name: "iteration-editor"
-description: "Edit an iteration of an already-running ad without Premiere: Notion Iteration Ticket (Iterations table, one row per variation) → find the original → change sheet → approval → FFmpeg render with a lock check that proves nothing else moved → Edit Review rounds → Premiere XML. Use whenever Tim or an editor shares a ticket named Iteration_…, a ticket with Ad Type Iterations, a 'Link to original', or asks to iterate on, tweak, re-hook, re-VO, re-caption, reorder, re-CTA or add an offer/BFCM angle to a finished or live ad, e.g. 'do this iteration', 'iteration-editor', 'make the V1 and V2 iterations', 'swap the hook on the winning ad', 'just the change sheet for this iteration'. Use this instead of hp-editor-agent or premiere-script-prompt when there is no script table and the job is a few changes to an existing edit."
+description: "Edit an iteration of an already-running ad without Premiere: Notion Iteration Ticket (Iterations table, one row per variation) → find the original → change sheet → approval → FFmpeg render with a lock check that proves nothing else moved → review rounds (Edit Review if installed, otherwise chat) → Premiere XML. Use whenever Tim or an editor shares a ticket named Iteration_…, a ticket with Ad Type Iterations, a 'Link to original', or asks to iterate on, tweak, re-hook, re-VO, re-caption, reorder, re-CTA or add an offer/BFCM angle to a finished or live ad, e.g. 'do this iteration', 'iteration-editor', 'make the V1 and V2 iterations', 'swap the hook on the winning ad', 'just the change sheet for this iteration'. Use this instead of hp-editor-agent or premiere-script-prompt when there is no script table and the job is a few changes to an existing edit."
 ---
 
 # Iteration Editor (native edit)
@@ -37,13 +37,35 @@ If `D:\Hambi\...` isn't reachable, say so in one line and carry on with the Proj
 
 ## Workflow
 
+### Review mode (decide once, before the preflight)
+
+Renders are reviewed in **Edit Review** when the user has it, and in chat when they don't. Nothing else in the workflow changes between the two.
+
+1. **Edit Review mode** needs all of these:
+   - the computer tools `device_list_dir`, `device_stage_files` and `device_commit_files`, plus `SendUserFile`;
+   - `review.html` in `D:\Hambi\03. Claude\Edit Review\`. If it isn't there, look for an `Edit Review` folder holding `review.html` in the connected folders (one `device_list_dir` per connected root, no deeper search). Use the folder you find as `<ER>` everywhere below.
+2. **Chat mode** is the default whenever any of that is missing: a regular chat, a computer that isn't linked, or someone who doesn't have the review app. Say it in one line ("Edit Review isn't set up here, so I'll post renders in chat") and carry on. Don't stop the job, and don't ask the user to install or move anything.
+
+Record the mode in the preflight table. If the computer drops mid-job, switch to chat mode for that round and say so.
+
+### Resume check (Edit Review mode only)
+
+1. Work out the job code from the message (`iteration-editor: notes done for <CODE> v<N>`, `iteration-editor: APPROVED <CODE> v<N>`) or from the ticket's naming.
+2. `device_list_dir` on `<ER>\jobs\<Seq base>\`. If it has `work\spec.json`, the job is in progress:
+   - stage `job.json`, `work\spec.json`, `work\original_map.json`, `notes.json` and `status.json`;
+   - re-download the original export from the Frame.io or Foreplay source recorded in `spec.json` (or stage `<ER>\jobs\<Seq base>\original\` if it's there);
+   - say in one line which version you're resuming from and carry on at step 8 or step 9.
+3. Otherwise it's a new job. Never overwrite a saved `spec.json` with a new v1 unless the user asks for a fresh start.
+
+In chat mode there's no resume. A new session starts from step 1, using the change sheet and `spec.json` the user still has in the chat.
+
 ### 0. Preflight
 
 One short table, read-only. Any ❌ that blocks the job stops the run.
 
 - **Notion:** fetch the ticket and query the Iterations table.
 - **Frame.io:** `mandatory_init` (account `eb4ebb8d-7328-4a67-b3ac-aa654a019fd1`).
-- **Computer:** `device_list_dir` on `D:\Hambi\03. Claude\Edit Review\`.
+- **Review mode:** Edit Review (with the `<ER>` path) or chat, from the check above. Chat mode is never a ❌.
 - **Cloud tools:** `ffmpeg -version`; `pip install faster-whisper --break-system-packages`.
 - **AI voice:** is a voice connector (e.g. ElevenLabs) connected? Only matters if a row changes VO.
 
@@ -223,13 +245,49 @@ One variation at a time (parallel renders run out of memory).
 
 Files go in `/mnt/user-data/outputs/<Seq base>/`: one MP4 per variation, the change sheet with the lock-check table, and SRTs only if captions were added or reworded.
 
-Upload to **Edit Review** exactly as `hp-editor-agent` step 7 describes (job folder `jobs\<Seq base>\`, `job.json`, `SendUserFile` → fileUuid → `device_commit_files`, `agent.json` message). Use the variation IDs as the sequence IDs (`V1`, `V2`), and add the original export as a sequence called `ORIGINAL` so reviewers can flip between them. If Edit Review isn't reachable, fall back to `SendUserFile` with `display: render`.
+#### Edit Review mode
 
-In chat, 3–5 lines: what changed per variation, old vs new duration, lock check result, ⚠️ approximations, open questions.
+Don't post the MP4s in chat. `<ER>` is the Edit Review folder found in the review-mode check; its layout is in `<ER>\README.md`.
+
+1. **job.json.** On v1, write `<ER>\jobs\<Seq base>\job.json`:
+   ```json
+   {"code":"<Seq base>","title":"<Brand> · Iteration · <Concept>","client":"<Brand>","ticket":"<Notion URL>",
+    "skill":"iteration-editor","deliver":"the Premiere XML and any SRTs, VO and card files",
+    "note":"Iteration of <original name>","updated":"<ISO now>",
+    "sequences":[
+      {"id":"V1","label":"V1 · <Concept Name>","versions":[{"v":1,"file":"v1/<Seq>_v1.mp4","created":"<date>"}]},
+      {"id":"ORIGINAL","label":"Original (live ad)","versions":[{"v":1,"file":"original/<original file name>.mp4","created":"<date>"}]}
+    ]}
+   ```
+   - One sequence per variation (`V1`, `V2`…), then `ORIGINAL` last, so reviewers can flip between them. Add `"srt"` to a version only when captions were added or reworded.
+   - `skill` and `deliver` make the app's **Notes done** and **Approve** buttons copy an `iteration-editor:` message instead of the HP one. Older copies of `review.html` ignore them and copy `HP-editor-agent: …`. Treat that message the same way when the code matches an iteration job.
+   - On later versions, stage the current `job.json` first, append the new version to each variation that changed, bump `updated` and write it back. `ORIGINAL` stays at v1. Never overwrite the user's `notes.json` or `status.json`.
+2. **Upload.** `SendUserFile` each MP4 (and SRT) with `display: attach` to get fileUuids, then `device_commit_files` them into `<ER>\jobs\<Seq base>\v<N>\`. Commit the change sheet (with the lock-check table) into the same folder, and `job.json` to the job root (`stagedPath` works for files written with Write). On v1 only, also commit the original export into `<ER>\jobs\<Seq base>\original\`.
+3. **Working files.** After every version, commit into `<ER>\jobs\<Seq base>\work\`: `spec.json`, `spec_v<N>.json`, `original_map.json` and the word timings (`asr.json`). These are what the resume check reads.
+4. **Message the app.** Append to `agent.json` `messages` (`{at, version, text}`), e.g. "v1 uploaded: V1, 33.5 → 31.8 s, lock check PASS". It shows on the job's status line.
+5. **Chat.** Write 3–5 lines: "v<N> is in Edit Review", the job code, what changed per variation, old vs new duration, the lock check result, ⚠️ approximations and open questions. Ask the user to leave timestamped notes, then click **Notes done → revise** or **Approve v<N>** and paste the copied message here.
+
+#### Chat mode (default)
+
+- `SendUserFile` each MP4 with `display: render`, plus the change sheet. If a folder is connected, also commit the MP4s and change sheet into it with `device_commit_files`, beside the original if it lives there, and say where.
+- Use the same 3–5 line summary, and ask for notes as replies in chat, with a timecode and the variation (e.g. "V1 0:09.4: start the bag shot later"). "Approved" or "APPROVED v<N>" in chat signs it off.
 
 ### 8. Feedback rounds
 
-Follow `hp-editor-agent` step 8 (read `notes.json` and `status.json` fresh, reply to every note in `agent.json`, bump `version`, re-render only what changed).
+**Trigger.** In Edit Review mode, the message the app copies (`iteration-editor: notes done for <CODE> v<N>`, or the older `HP-editor-agent: …` wording for an iteration job code), or the user saying the notes are in. In chat mode, the user's notes in chat.
+
+**Edit Review mode:**
+
+- If `spec.json` isn't in the workspace, run the resume check first.
+- Stage `notes.json` and `status.json` fresh. Act on every note with `state` `open` on the latest version. Notes carry `seq` (`V1`, `V2`, `ORIGINAL`), `version`, `t` (seconds into that cut) and `text`.
+- If `status.json` isn't `notes_submitted` for the latest version, check before revising, because they may still be adding notes.
+- Map each `t` through that variation's `segments` to the original timecode. That tells you whether the note lands in a changed section or a locked one.
+- A note on `ORIGINAL` is context, not a change. Reply that it's on the live ad and ask whether it should apply to the variations.
+- Reply to every note in `agent.json`: `notes[<id>] = {state: "done" | "dismissed", reply: "<one line>", version: <N+1>, at: <ISO>}`. Use `dismissed` only with a reason. Commit `agent.json` together with the v<N+1> files.
+
+**Chat mode:** answer each note in a numbered list in the same reply as v<N+1>, with the same done/dismissed-with-reason rule.
+
+**Both modes:** each note becomes a `spec.json` change, the version goes up, and only the variations that changed are re-rendered. Run the step 6 QC again, then deliver as in step 7.
 
 Two things are specific to iterations:
 
@@ -240,6 +298,8 @@ After each round, sort the notes as the other skills do: all clients → offer `
 
 ### 9. Approval → Premiere XML
 
+**Sign-off** is any of: the app's copied `iteration-editor: APPROVED <CODE> v<N>` (or the older `HP-editor-agent: APPROVED …` for an iteration job code); `status.json` showing `{state: "approved", version: N}`; or "approved" in chat. In Edit Review mode, stage `status.json` first and check that the approved version is the latest. If notes are still open, list them and ask whether to ignore them.
+
 On sign-off, build **one** FCP7 xmeml v4 file, `<Seq base>_ALL_v<N>.xml`, with one sequence per variation, following `ugc-revision` step 8 for structure, `pathurl`s and validation.
 
 - **V1:** the original export for the locked ranges, and the new clips for the changed section.
@@ -249,7 +309,12 @@ On sign-off, build **one** FCP7 xmeml v4 file, `<Seq base>_ALL_v<N>.xml`, with o
 
 Tell the user what the XML is: the locked sections are the flattened original, not its layers. If the editor has the original Premiere project, the faster hand-off is often the **changed section only** dropped into a duplicate of the original sequence. Offer that, and say which markers to line it up on.
 
-Deliver the XML, any SRTs, the new VO files and card PNGs into `D:\Hambi\03. Claude\Edit Review\delivery\<CODE>\`, as in `hp-editor-agent` step 9.
+Validate the XML: it parses, ids are unique, each file is defined once, and there's one sequence per variation.
+
+**Deliver:**
+
+- **Edit Review mode:** `SendUserFile` (`attach`), then `device_commit_files` the XML, any SRTs, the new VO files and card PNGs (in `cards\`) into `<ER>\delivery\<CODE>\`. Point the `pathurl`s there. Append an `agent.json` message: "Approved v<N> delivered: XML in delivery\<CODE>".
+- **Chat mode:** `SendUserFile` (`attach`) each file. If a folder is connected, also commit them into a `<Seq base>_delivery\` subfolder there and point the `pathurl`s at it. If nothing is connected, the `pathurl`s can't be known: put the original export, VO and cards beside the XML, say they need relinking on import, and add a frame-0 marker saying so.
 
 ## Naming
 
@@ -277,3 +342,5 @@ If the original Premiere project is open and the Premiere connector is live, the
 - Normalising the whole render to −14 LUFS. That changes the locked audio. Match new elements to the original.
 - Fixing things nobody asked for. An iteration with an extra change is a broken test.
 - Everything in `hp-editor-agent`'s Pitfalls about Frame.io listings, `stagedPath` commits, background transcodes and reading Edit Review files fresh applies here too.
+- Stopping the job because Edit Review isn't there. Chat mode is the normal path for anyone without the review app.
+- Writing `job.json` without `"skill":"iteration-editor"`. The app then copies an `HP-editor-agent:` message, which can start the wrong skill in a fresh chat.
