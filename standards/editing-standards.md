@@ -1,8 +1,8 @@
 ---
 name: editing-standards
 description: Hambi Media house editing standards for HP (high-production) ad edits. Read by every editing skill (Premiere script-prompt, native/FFmpeg edit, QA) before planning, building or reviewing a cut.
-version: 1.1
-updated: 2026-11-20
+version: 1.2
+updated: 2026-11-25
 source: Frame.io INT/HP feedback, 8 Oct – 7 Nov 2026 (814 comments, 159 HP files, 19 clients)
 owner: Tim Tamon (Post Production Lead, Systems)
 ---
@@ -74,6 +74,7 @@ The rules are ordered by how often reviewers flagged each issue. Sections 1–3 
 - **B9.** Graphics must look native to the brand: brand colours and fonts, rounded boxes, and no default PowerPoint-style charts. Keep them sharp, never pixelated.
 - **B10.** Match on-screen visuals to the wording. A "meal deal" must look like a UK meal deal, a "scoop" must be a scoop, and the "fridge" line needs a fridge.
 - **B11.** Pick talent and B-roll subjects that match the target persona's age and look (e.g. women aged 40–50 for a 46-year-old pain point).
+- **B12.** **Multi-camera shoots:** when the shot is on one person, use the B-cam (or whichever camera is framed on that person). Use the A-cam full frame (wide) only in split screens. Only crop the A-cam to one person when no other camera covers that moment, and flag it. (Added 2026-11-25)
 
 ## 3. Cuts and pacing
 
@@ -85,6 +86,7 @@ The rules are ordered by how often reviewers flagged each issue. Sections 1–3 
 - **P6.** On-screen text, product shots and B-roll land on the word that mentions them, not before.
 - **P7.** If the runtime is long, bring the product shot and CTA in while the presenter is still speaking.
 - **P8.** End cleanly: no black frames, no empty tail, and no captions running past the final line.
+- **P9.** Cut every off-camera voice: slate countdowns ("three, two, one"), crew or director talk, and off-screen comments. Check the head and tail of every take, because a countdown's last word often sits right before the first line. (Added 2026-11-25)
 
 ## 4. Hooks
 
@@ -153,6 +155,7 @@ Run this before every export. Any skill producing an edit must report pass or fa
 - 2026-11-07: v1.0 created from Frame.io INT/HP feedback, 8 Oct – 7 Nov 2026.
 - 2026-11-17: v1.1 added C8 (sentence grammar in captions: script punctuation for verbatim lines, standard grammar for lines changed on the shoot). Source: Tim's v1 notes on PF_HM_CM3_HP_C4.
 - 2026-11-20: Added Prep Kitchen to Client overrides. Source: CM1–CM4 EXT client feedback plus the Notion Brand Hub; full guide in prep-kitchen.md.
+- 2026-11-25: v1.2 added P9 (cut off-camera voices and slate countdowns) and B12 (B-cam for single-person shots, A-cam full frame for split screens). Source: Tim's v1 notes on Rheal_HM_CM8_HP_C7.
 
 ---
 
