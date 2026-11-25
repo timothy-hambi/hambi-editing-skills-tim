@@ -65,6 +65,7 @@ One short table, read-only. Any ❌ that blocks the job stops the run.
 
 - **Notion:** fetch the ticket and query the Iterations table.
 - **Frame.io:** `mandatory_init` (account `eb4ebb8d-7328-4a67-b3ac-aa654a019fd1`).
+- **Foreplay:** `get_lenses` for the client. This only matters when Link to original is a Foreplay link; if the connector is missing, fall back to Frame.io.
 - **Review mode:** Edit Review (with the `<ER>` path) or chat, from the check above. Chat mode is never a ❌.
 - **Cloud tools:** `ffmpeg -version`; `pip install faster-whisper --break-system-packages`.
 - **AI voice:** is a voice connector (e.g. ElevenLabs) connected? Only matters if a row changes VO.
@@ -100,11 +101,28 @@ You need two things: the **final export** of the original (the base), and **part
 
 **The final export.** Try in this order:
 
-1. The original's own ticket. Search the client's Review Pipeline for the original concept (the name and concept number are usually in the original's file name or the Foreplay title) and open its Frame Link. Download the newest approved version from the version stack.
-2. A Frame.io search for the ad's name.
-3. Ask the user to drop the MP4 into a connected local folder and stage it.
+1. **Foreplay (the live ad).** When Link to original is a Foreplay link, pull the file through the Foreplay connector. Don't ask the user to download it.
+   - **Lens share link** (`app.foreplay.co/share/lens-ad/<share_id>`):
+     1. `get_lenses` with the client name as the `name` filter. A client can have several lenses (e.g. one per country); check the ones whose name matches.
+     2. `list_lens_creative_share_links` for that lens with `limit: 100`, paging until the share link whose `id` equals `<share_id>` turns up. The result can be large and saved to a file; parse it with a short script rather than reading it. The match gives the `ad_id`.
+     3. `get_lens_ad` with the `lens_id` and `ad_id`. That returns `video_url` (a direct MP4), `ad_name`, `ad_status`, the ad copy, and `ai_transaction.transcription` with timed segments.
+   - **Discovery link** (`app.foreplay.co/discovery?ad=<id>`): `get_ad_by_id`.
+   - Download the `video_url` with `curl -sSL` into its own folder (`src/`) and `ffprobe` it.
+   - Keep `ad_name`: it's the in-house or Meta name and the best search term for steps 2 and 3.
+2. **The original's own ticket.** Search the client's Review Pipeline for the original concept (the name and concept number are usually in `ad_name` or the file name) and open its Frame Link. Download the newest approved version from the version stack.
+3. **A Frame.io search** for `ad_name`, lexical.
+4. **Ask the user** to drop the MP4 into a connected local folder, and stage it.
 
-A Foreplay link is a viewing page, not a file. It can't be downloaded from here, so use it to identify the ad and then get the file from Frame.io or the user. If the Frame.io export and the live ad might differ (e.g. a later client round), ask which is live.
+**Pick the base.**
+
+- Foreplay gives the file Meta serves, which is often 720×1280 and re-compressed.
+- If a Frame.io export is found, compare the two (file size or `md5sum`, then resolution and duration):
+  - **Identical bytes:** say so in one line and use either.
+  - **Same edit, better quality on Frame.io:** use the Frame.io export.
+  - **The content differs** (e.g. a later client round went live): ask which one is live before mapping.
+- If Foreplay is the only source, use it, match its size in the render, and note the resolution under Open points.
+
+Record the source (`foreplay: lens_id/ad_id` or `frameio: file_id`) in `spec.json` `original`, so the resume check can download it again.
 
 **Parts.** Only what the changes need. Look in the original ticket's Frame folder and the client's HP library for:
 
@@ -330,7 +348,7 @@ If the original Premiere project is open and the Premiere connector is live, the
 
 - Burned-in captions and text can't be removed from a flattened export. They need clean clips, a cover, or a crop.
 - Replacing VO over music on a flattened export relies on stem separation (`pip install demucs --break-system-packages`, `--two-stems=vocals`, run in the background). It's usually clean enough under a new VO but can leave artefacts. Always flag it and offer the alternative of a supplied music track.
-- A Foreplay link can't be downloaded from here.
+- Foreplay's file is the one Meta serves, often 720p and re-compressed. If no better master turns up, the iteration is delivered at that size, and the sheet says so.
 - The same AI voice needs the voice's name or ID. A close match isn't the same voice.
 - A full-frame change (banner, resize, re-grade) means there is no locked picture to check; say that the lock check covered audio only.
 - The XML carries the flattened original for locked sections, not the original's layers.
