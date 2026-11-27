@@ -34,7 +34,7 @@ python3 scripts/allocation.py overview --dir /mnt/user-data/outputs/ppm/app --ca
 
 Use the UK date. Turn the output into a short reply, skipping empty sections:
 
-0. **Calendar changes the app hasn't picked up** (nobody has opened the app since). Run `sync` (below) and apply it, then reload the app data before going further. Mirroring the calendar into the EXT row is what the app's own auto-sync does anyway, so this write doesn't need approval, but say what changed.
+0. **Calendar changes the app hasn't picked up** (nobody has opened the app since). Run `sync` (below) and apply it, then reload the app data before going further. Mirroring the calendar into the EXT row is what the hourly EXT sync does anyway, so this write doesn't need approval, but say what changed.
 1. **EXT moves waiting on INT shifts.** Moves later are breathing room; moves earlier are risk. Offer to shift each one (Step 3).
 2. **INT within a working day of its EXT, or after it.** A 🔴 can also mean the brand's real EXT isn't in the calendar yet (Noted Aromas C1–C7 is a known case); say which is likelier.
 3. **EXT deliveries with nothing matched** — possible missed allocation, or tickets named without the brand. UGC deliveries may be handled elsewhere.
@@ -81,7 +81,7 @@ Present the draft as a grid per week (EXT row on top, editors in the app's roste
 
 ## EXT sync only (on request)
 
-The app syncs EXT dates itself: when Sam or Tim opens it in the Claude desktop app with the Notion token connected as `notionApi`, it syncs if the last sync is over 30 minutes old and re-checks every 10 minutes while open (no connector allowance used). In a browser it doesn't auto-sync; the **Sync EXT dates** button tries the token first and falls back to the connector. No hourly scheduled task is needed.
+EXT dates sync hourly through a Cowork scheduled task using the Notion token (the owner's machine must be on). The app can't sync silently on its own: the organisation requires an "Allow" click for every token call from an artifact. If the last sync is over 90 minutes old, the app flags it on its status line. The **Sync EXT dates** button tries the token first (one Allow click in Claude Desktop) and falls back to the connector in a browser.
 
 When the prompt is "sync the EXT dates into the allocation app", skip the overview and do only this:
 
